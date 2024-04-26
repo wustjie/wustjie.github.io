@@ -107,7 +107,7 @@ sudo iptables -A INPUT -p tcp --dport port2 -j ACCEPT
 <pre><code>docker attach container_id
 </code></pre>
 <p>run client server</p>
-<pre><code>python3.8 /app/client.py center_ip center_port1 center_port2 client_ip client_port1 client_port2
+<pre><code>python3.8 /app/client.py center_ip center_port1 center_port2 client_ip client_port1 client_port2 database_name
 </code></pre>
 <h2 id="create-env-with-pip">create env with pip</h2>
 <p>We recommend using conda to create an environment, then installing the packages using pip.</p>
@@ -220,5 +220,5 @@ sudo iptables -A INPUT -p tcp --dport 6001 -j ACCEPT
 
 <!--
 MkDocs version : 1.6.0
-Build Date UTC : 2024-04-26 06:29:22.904702+00:00
+Build Date UTC : 2024-04-26 06:43:53.205944+00:00
 -->
