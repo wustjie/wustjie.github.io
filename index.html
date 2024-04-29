@@ -53,13 +53,20 @@
     <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
         <ul class="nav flex-column">
             
-            <li class="nav-item" data-bs-level="2"><a href="#create-env-with-docker" class="nav-link">create env with docker</a>
+            <li class="nav-item" data-bs-level="1"><a href="#overview" class="nav-link">Overview</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#installation-and-deployment" class="nav-link">Installation and Deployment</a>
               <ul class="nav flex-column">
               </ul>
             </li>
-            
-            <li class="nav-item" data-bs-level="2"><a href="#create-env-with-pip" class="nav-link">create env with pip</a>
+            <li class="nav-item" data-bs-level="2"><a href="#user-guide" class="nav-link">User Guide</a>
               <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#advanced-usage" class="nav-link">Advanced Usage</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
               </ul>
             </li>
         </ul>
@@ -67,78 +74,107 @@
 </div></div>
                     <div class="col-md-9" role="main">
 
-<h2 id="create-env-with-docker">create env with docker</h2>
-<h3 id="center">center</h3>
-<p>pull the docker image</p>
+<h1 id="overview">Overview</h1>
+<h2 id="installation-and-deployment">Installation and Deployment</h2>
+<h3 id="deployment-of-central-server">Deployment of central-server</h3>
+<p>pull the docker image,It contains the environment and code to run</p>
 <pre><code>docker pull kpbl1/federei:v1
 </code></pre>
-<p>get ip</p>
+<p>Use this command to query the ip address of the current machine for later use
+Linux use:</p>
 <pre><code>ifconfig
 </code></pre>
-<p>export two port</p>
+<p>Windows use:</p>
+<pre><code>ipconfig
+</code></pre>
+<p>Open two tcp ports on the machine for listening,for example 5000 5001.port1 is for client regist,port2 for user send file. </p>
+<p>If the firewall on your machine is iptables,use this:</p>
 <pre><code>sudo iptables -A INPUT -p tcp --dport port1 -j ACCEPT
 sudo iptables -A INPUT -p tcp --dport port2 -j ACCEPT
 </code></pre>
-<p>run image and center server</p>
-<pre><code>docker run -i -p port1:port1 -p port2:port2 federei:v1
-python3.8 /app/center.py center_ip port1 port2
+<p>If the firewall on your machine is firewalld,use this:</p>
+<pre><code>sudo firewall-cmd --zone=public --add-port=port1/tcp --permanent
+sudo firewall-cmd --zone=public --add-port=port2/tcp --permanent
+sudo firewall-cmd --reload
 </code></pre>
-<h3 id="client">client</h3>
-<p>client should be run after center</p>
-<p>pull the docker image</p>
+<p>run central-server</p>
+<pre><code>docker run -i -p port1:port1 -p port2:port2 federei:v1
+python3.8 /app/center.py your_ip_address port1 port2
+</code></pre>
+<h3 id="deployment-of-client-server">Deployment of client-server</h3>
+<p>client server should be run after central,we need the central ip and port information to start it.After client server run it will be added to regist table automatically</p>
+<p>pull the docker image,It contains the environment and code to run</p>
 <pre><code>docker pull kpbl1/federei:v1
 </code></pre>
-<p>run image </p>
+<p>Use this command to query the ip address of the current machine for later use
+Linux use:</p>
+<pre><code>ifconfig
+</code></pre>
+<p>Windows use:</p>
+<pre><code>ipconfig
+</code></pre>
+<p>Open two tcp ports on the machine for listening,for example 5000 5001</p>
+<p>If the firewall on your machine is iptables,use this:</p>
+<pre><code>sudo iptables -A INPUT -p tcp --dport port1 -j ACCEPT
+sudo iptables -A INPUT -p tcp --dport port2 -j ACCEPT
+</code></pre>
+<p>If the firewall on your machine is firewalld,use this:</p>
+<pre><code>sudo firewall-cmd --zone=public --add-port=port1/tcp --permanent
+sudo firewall-cmd --zone=public --add-port=port2/tcp --permanent
+sudo firewall-cmd --reload
+</code></pre>
+<p>run client
+we let the container run in the background and then copy the database into it</p>
 <pre><code>docker run -d -p port1:port1 -p port2:port2 federei:v1
 </code></pre>
-<p>check container id</p>
+<p>Find the id of the container we started</p>
 <pre><code>docker ps
 </code></pre>
-<p>copy database into container</p>
+<p>Then copy database into it</p>
 <pre><code>docker cp your_database_path container_id:/app
 </code></pre>
-<p>get  ip </p>
-<pre><code>ifconfig
-</code></pre>
-<p>export two port</p>
-<pre><code>sudo iptables -A INPUT -p tcp --dport port1 -j ACCEPT
-sudo iptables -A INPUT -p tcp --dport port2 -j ACCEPT
-</code></pre>
+<p>attach this container and run server,database_name is the last item of your_database_path</p>
 <pre><code>docker attach container_id
+python3.8 /app/client.py central_ip center_port1 center_port2 client_ip client_port1 client_port2 database_name
 </code></pre>
-<p>run client server</p>
-<pre><code>python3.8 /app/client.py center_ip center_port1 center_port2 client_ip client_port1 client_port2 database_name
+<h3 id="installation-of-user-interface">Installation of user-interface</h3>
+<p>download software in here:
+https://github.com/wustjie/wustjie.github.io/releases/tag/FederEI</p>
+<h2 id="user-guide">User Guide</h2>
+<h3 id="preparation-of-input-file">Preparation of input file</h3>
+<p>we now support csv,txt,mgf data type.
+csv data type as:</p>
+<p><img alt="alt text" src="image.png" /></p>
+<p>txt data type as:</p>
+<p><img alt="alt text" src="image-1.png" /></p>
+<p>mgf data type:
+At least contain COMPOUND_NAME attribute</p>
+<p>we put some data example on here:
+https://github.com/wustjie/wustjie.github.io/releases/tag/FederEI</p>
+<h3 id="operation-sequence">Operation sequence</h3>
+<p>First set the central ip and port.
+Second put on query data.
+Third wait and view the result.</p>
+<h3 id="interpretation-of-results">Interpretation of results</h3>
+<p><img alt="alt text" src="image-2.png" /></p>
+<p>click the query data will show the results,then click the result will show the compare of mass spectrum.And in structure will show the result compound struct.</p>
+<h3 id="saving-results">Saving results</h3>
+<p>Results file will auto save in FederEI.exe filefolder.
+The result is rename by query time,contain all query data.</p>
+<h2 id="advanced-usage">Advanced Usage</h2>
+<h3 id="how-to-add-client-server">How to add client-server</h3>
+<p>Run client server,it will be added to regist table automatically</p>
+<h3 id="how-to-change-library">How to change library</h3>
+<p>copy your database into container and rerun client server</p>
+<pre><code>docker cp your_database_path container_id:/app
+docker attach container_id
+python3.8 /app/client.py central_ip center_port1 center_port2 client_ip client_port1 client_port2 database_name
 </code></pre>
-<h2 id="create-env-with-pip">create env with pip</h2>
-<p>We recommend using conda to create an environment, then installing the packages using pip.</p>
-<pre><code>cd FederEI  
-conda create -n FederEI -y  
-conda activate FederEI  
-conda install python=3.8 -y
-</code></pre>
-<p>Then,install the dependencies using pip:</p>
-<pre><code>pip install -r env/requirements.txt
-</code></pre>
-<h3 id="center-server-run">Center server run:</h3>
-<p>export port</p>
-<pre><code>sudo iptables -A INPUT -p tcp --dport 5000 -j ACCEPT
-sudo iptables -A INPUT -p tcp --dport 5001 -j ACCEPT
-</code></pre>
-<pre><code>python app/center.py 
-</code></pre>
-<h3 id="client-server-run">Client server run:</h3>
-<p>export port</p>
-<pre><code>sudo iptables -A INPUT -p tcp --dport 6000 -j ACCEPT
-sudo iptables -A INPUT -p tcp --dport 6001 -j ACCEPT
-</code></pre>
-<p>get ip</p>
-<pre><code>ifconfig
-</code></pre>
-<pre><code>python app/server.py center_addr center_message_port center_file_port Client_addr Client_message_port Client_file_port database_path
-</code></pre>
-<p>for example:</p>
-<pre><code>python app/client.py '127.0.0.1' 5000 5001 '127.0.0.1' 6000 6001 &quot;database.pickle&quot;
-</code></pre></div>
+<h4 id="library-format">Library format</h4>
+<p>Library data support .pickle and .mgf type.
+It should at least contain these information:
+smiles
+compound_name</p></div>
             </div>
         </div>
 
@@ -220,5 +256,5 @@ sudo iptables -A INPUT -p tcp --dport 6001 -j ACCEPT
 
 <!--
 MkDocs version : 1.6.0
-Build Date UTC : 2024-04-26 06:49:05.488084+00:00
+Build Date UTC : 2024-04-29 04:09:15.825562+00:00
 -->
